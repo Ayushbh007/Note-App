@@ -224,9 +224,9 @@ function handleUndoDelete(note: Note) {
 
 <svelte:window ononline={async () => { syncStatus.set('syncing'); await syncPendingOperations(); await loadNotes(); syncStatus.set('online'); }} onoffline={() => { syncStatus.set('offline'); }} />
 
-<div class="relative min-h-screen flex flex-col bg-[#0c2f36] text-white transition-colors">
-	<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:28px_28px] opacity-30"></div>
-	<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(13,185,146,0.08),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(210,255,64,0.12),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(255,255,255,0.06),transparent_50%)]"></div>
+<div class="relative min-h-screen flex flex-col bg-slate-100 dark:bg-[#0c2f36] text-slate-800 dark:text-white transition-colors">
+	<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:28px_28px] opacity-30"></div>
+	<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(13,185,146,0.05),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(56,189,248,0.08),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(0,0,0,0.03),transparent_50%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(13,185,146,0.08),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(210,255,64,0.12),transparent_40%),radial-gradient(circle_at_50%_80%,rgba(255,255,255,0.06),transparent_50%)]"></div>
 
 	<Navbar syncStatusStore={syncStatus} onToggleTheme={() => theme.toggle()} />
 
@@ -243,14 +243,14 @@ function handleUndoDelete(note: Note) {
 	</main>
 
 	<footer class="relative z-10 mt-auto py-4">
-		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-teal-100">
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-600 dark:text-teal-100">
 			<p>
 				View on
 				<a
 					href="https://github.com/yourusername/notes-app"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="ml-1 text-lime-300 hover:text-lime-200 font-semibold"
+					class="ml-1 text-emerald-600 dark:text-lime-300 hover:text-emerald-500 dark:hover:text-lime-200 font-semibold"
 				>
 					GitHub
 				</a>
