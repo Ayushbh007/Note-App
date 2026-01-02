@@ -10,3 +10,12 @@
 	color-scheme: dark;
 }
 
+/* Add pointer cursor to all interactive elements */
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+a {
+	cursor: pointer;
+}
+

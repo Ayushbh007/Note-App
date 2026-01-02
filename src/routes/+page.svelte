@@ -17,6 +17,7 @@ import NotesModals from '$lib/components/NotesModals.svelte';
 import LoadingSkeleton from '$lib/components/LoadingSkeleton.svelte';
 import Toast from '$lib/components/Toast.svelte';
 import Navbar from '$lib/components/Navbar.svelte';
+import NoteCount from '$lib/components/NoteCount.svelte';
 
 	let showCreateModal = $state(false);
 	let editingNote: Note | null = $state(null);
@@ -89,19 +90,12 @@ let lastResult: Note[] = [];
 		deletingNote = note;
 	}
 
-	// DEBUG LOGS
-function debugLog(...args: unknown[]) {
-		console.log('[DEBUG]', ...args);
-	}
-
 async function handleCreate(data: Omit<Note, 'id' | 'createdAt'>) {
-		debugLog('handleCreate called', data);
 		try {
 			await createNote(data);
 			showToast('Note created successfully', 'success');
-			debugLog('handleCreate finished');
 		} catch (error) {
-			console.error('[DEBUG] handleCreate error', error);
+			console.error('Failed to create note:', error);
 			showToast('Failed to create note', 'error');
 		} finally {
 			// Always close modal and reset editing state after submission attempt
@@ -121,7 +115,7 @@ function scheduleDelete(note: Note) {
 		try {
 			await deleteNote(note.id);
 		} catch (error) {
-			console.error('[DEBUG] scheduleDelete deleteNote error', error);
+			console.error('Failed to delete note:', error);
 			// Restore on failure
 			notes.update((n) => [note, ...n.filter((item) => item.id !== note.id)]);
 			showToast('Delete failed — note restored', 'error');
@@ -152,14 +146,12 @@ function handleUndoDelete(note: Note) {
 
 	async function handleUpdate(data: Omit<Note, 'id' | 'createdAt'>) {
 		if (editingNote) {
-			debugLog('handleUpdate called', editingNote, data);
 			try {
 				await updateNote(editingNote.id, data);
 				editingNote = null;
 				showToast('Note updated successfully', 'success');
-				debugLog('handleUpdate finished');
 			} catch (error) {
-				console.error('[DEBUG] handleUpdate error', error);
+				console.error('Failed to update note:', error);
 				showToast('Failed to update note', 'error');
 			}
 		}
@@ -167,12 +159,9 @@ function handleUndoDelete(note: Note) {
 
 	function handleDeleteConfirm() {
 		if (deletingNote) {
-			const noteId = deletingNote.id;
-			debugLog('handleDeleteConfirm called', noteId);
-		const noteToDelete = deletingNote;
-		deletingNote = null;
-		scheduleDelete(noteToDelete);
-		debugLog('handleDeleteConfirm scheduled delete', noteId);
+			const noteToDelete = deletingNote;
+			deletingNote = null;
+			scheduleDelete(noteToDelete);
 		}
 	}
 
@@ -232,12 +221,14 @@ function handleUndoDelete(note: Note) {
 
 	<main class="relative z-10 flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full pt-28">
 		<div class="mt-8">
-			<NotesToolbar onCreate={handleCreateClick} />
+			<NotesToolbar onCreate={handleCreateClick} onToast={showToast} />
 		</div>
 		{#if $isLoading}
 			<LoadingSkeleton />
 		{:else}
-			<NotesList notes={getDisplayNotes()} onEdit={handleEditClick} onDelete={handleDeleteClick} onPin={(note) => pinNote(note.id)} />
+			{@const displayedNotes = getDisplayNotes()}
+			<NoteCount displayedCount={displayedNotes.length} />
+			<NotesList notes={displayedNotes} onEdit={handleEditClick} onDelete={handleDeleteClick} onPin={(note) => pinNote(note.id)} onCreate={handleCreateClick} />
 		{/if}
 		<NotesPagination totalPages={getTotalPagesCount()} />
 	</main>

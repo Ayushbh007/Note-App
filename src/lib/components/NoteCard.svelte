@@ -10,6 +10,34 @@
 	}
 
 	let { note, onEdit, onDelete, onPin }: Props = $props();
+
+	/**
+	 * Format date safely, handling invalid date strings from MockAPI
+	 * MockAPI returns strings like "createdAt 1" which JS parses as Jan 1, 2001
+	 */
+	function formatDate(dateStr: string | undefined): string | null {
+		if (!dateStr) return null;
+		
+		// Check if the string looks like a valid ISO date (starts with year)
+		// Valid ISO dates look like: "2025-01-02T14:30:00.000Z"
+		const isValidISODate = /^\d{4}-\d{2}-\d{2}/.test(dateStr);
+		
+		if (!isValidISODate) {
+			return null;
+		}
+		
+		const date = new Date(dateStr);
+		if (isNaN(date.getTime())) {
+			return null;
+		}
+		return `${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+	}
+
+	// Check if note was updated after creation
+	function wasUpdated(): boolean {
+		if (!note.updatedAt || !note.createdAt) return false;
+		return note.updatedAt !== note.createdAt;
+	}
 </script>
 
 <div
@@ -28,9 +56,14 @@
 				{/if}
 				<h3 class="text-xl font-bold text-slate-800 dark:text-white">{note.title}</h3>
 			</div>
-			<p class="text-sm text-slate-500 dark:text-teal-100/80 mt-1">
-				{new Date(note.createdAt).toLocaleDateString()} at {new Date(note.createdAt).toLocaleTimeString()}
-			</p>
+			<div class="text-sm text-slate-500 dark:text-teal-100/80 mt-1 space-y-0.5">
+				<p>Created: {formatDate(note.createdAt) ?? 'Date unavailable'}</p>
+				{#if wasUpdated() && formatDate(note.updatedAt)}
+					<p class="text-xs text-slate-400 dark:text-teal-100/60">
+						Updated: {formatDate(note.updatedAt)}
+					</p>
+				{/if}
+			</div>
 		</div>
 		<button
 			onclick={() => onPin(note)}

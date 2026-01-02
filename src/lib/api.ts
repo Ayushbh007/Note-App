@@ -45,15 +45,12 @@ async function fetchWithTimeout(
 	const timeoutId = setTimeout(() => controller.abort(), timeout);
 
 	try {
-		console.log('[DEBUG] fetchWithTimeout before fetch', url, options, timeout);
 		const response = await fetch(url, {
 			...options,
 			signal: controller.signal
 		});
-		console.log('[DEBUG] fetchWithTimeout after fetch', response);
 		return response;
 	} catch (error) {
-		console.error('[DEBUG] fetchWithTimeout error', error);
 		if (error instanceof Error && error.name === 'AbortError') {
 			throw new ApiError(408, 'Request timeout');
 		}
@@ -110,40 +107,32 @@ export const api = {
 	/**
 	 * Create note
 	 * IMPORTANT:
-	 * - Do NOT send createdAt
-	 * - Do NOT send id
+	 * - Do NOT send id (MockAPI generates it)
+	 * - DO send createdAt (MockAPI otherwise generates placeholder text)
 	 */
 	async createNote(
 		note: Omit<Note, 'id' | 'createdAt'>
 	): Promise<Note> {
-		console.log('[DEBUG] api.createNote called', note);
+		const now = new Date().toISOString();
 		const body = {
 			title: note.title,
 			content: note.content,
-			pinned: note.pinned ?? false
+			pinned: note.pinned ?? false,
+			createdAt: now,
+			updatedAt: now
 		};
 
-		let response;
-		try {
-			console.log('[DEBUG] api.createNote before fetchWithTimeout', body);
-			response = await fetchWithTimeout(
-				`${getBaseUrl()}/notes`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(body)
-				}
-			);
-			console.log('[DEBUG] api.createNote after fetchWithTimeout', response);
-			const result = await handleResponse<Note>(response);
-			console.log('[DEBUG] api.createNote after handleResponse', result);
-			return result;
-		} catch (error) {
-			console.error('[DEBUG] api.createNote error', error, response);
-			throw error;
-		}
+		const response = await fetchWithTimeout(
+			`${getBaseUrl()}/notes`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(body)
+			}
+		);
+		return handleResponse<Note>(response);
 	},
 
 	/**
@@ -153,6 +142,11 @@ export const api = {
 		id: string,
 		note: Partial<Omit<Note, 'id'>>
 	): Promise<Note> {
+		const body = {
+			...note,
+			updatedAt: new Date().toISOString()
+		};
+
 		const response = await fetchWithTimeout(
 			`${getBaseUrl()}/notes/${id}`,
 			{
@@ -160,7 +154,7 @@ export const api = {
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify(note)
+				body: JSON.stringify(body)
 			}
 		);
 

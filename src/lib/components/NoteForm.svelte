@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Note } from '../types';
+	import RichTextEditor from './RichTextEditor.svelte';
 
 	interface Props {
 		note?: Note;
@@ -71,7 +72,7 @@ async function handleSubmit() {
 			pinned
 		});
 	} catch (error) {
-		console.error('[DEBUG] NoteForm handleSubmit error', error);
+		console.error('Failed to submit note:', error);
 	}
 	}
 </script>
@@ -111,15 +112,13 @@ async function handleSubmit() {
 		>
 			Content <span class="text-red-500">*</span>
 		</label>
-		<textarea
-			id="content"
-			bind:value={content}
-			rows="6"
-			maxlength="2000"
-			class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none"
-			class:border-red-500={errors.content}
+		<RichTextEditor
+			value={content}
+			onInput={(val) => content = val}
+			placeholder="Write your note content here..."
 			disabled={isSubmitting}
-		></textarea>
+			maxLength={2000}
+		/>
 		{#if errors.content}
 			<p class="mt-1 text-sm text-red-500">{errors.content}</p>
 		{/if}
