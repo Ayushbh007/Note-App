@@ -20,7 +20,6 @@
 	function updateValue() {
 		if (editorRef) {
 			const html = editorRef.innerHTML;
-			// Convert to plain text for storage, preserving line breaks
 			const text = html
 				.replace(/<br\s*\/?>/gi, '\n')
 				.replace(/<\/p>/gi, '\n')
@@ -45,7 +44,6 @@
 		updateValue();
 	}
 
-	// Sync external value changes to editor
 	$effect(() => {
 		if (editorRef && editorRef.innerText !== value) {
 			editorRef.innerText = value;
@@ -54,7 +52,6 @@
 </script>
 
 <div class="rich-text-editor rounded-xl border border-gray-300 dark:border-gray-600 overflow-hidden {disabled ? 'opacity-50' : ''}">
-	<!-- Toolbar -->
 	<div class="flex flex-wrap gap-1 p-2 bg-slate-100 dark:bg-slate-700/50 border-b border-gray-300 dark:border-gray-600">
 		<button
 			type="button"
@@ -126,7 +123,6 @@
 		</button>
 	</div>
 
-	<!-- Editor -->
 	<div
 		bind:this={editorRef}
 		contenteditable={!disabled}

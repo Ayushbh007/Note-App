@@ -64,7 +64,6 @@ async function performCreate(tempId: string, data: Omit<Note, 'id' | 'createdAt'
 		notes.update(n => n.filter(note => note.id !== tempId));
 		throw error;
 	}
-	// Persist current notes state locally so offline refresh keeps new note
 	saveNotesToDB(get(notes)).catch(console.error);
 }
 
@@ -86,7 +85,6 @@ export function updateNote(id: string, data: Partial<Omit<Note, 'id'>>) {
 					note: { ...noteToEdit, ...data },
 					timestamp: Date.now()
 				});
-				// Persist local changes for offline reloads
 				saveNotesToDB(get(notes)).catch(console.error);
 			}
 		} catch (error) {
@@ -113,7 +111,6 @@ export function deleteNote(id: string) {
 					note: noteToDelete,
 					timestamp: Date.now()
 				});
-				// Persist local state without the deleted note
 				saveNotesToDB(get(notes)).catch(console.error);
 			}
 		} catch (error) {
@@ -131,7 +128,6 @@ export function pinNote(id: string) {
 
 	const updatedNote = { ...note, pinned: !note.pinned };
 	
-	// Optimistic update
 	notes.update(n => n.map(n => n.id === id ? updatedNote : n));
 	
 	if (navigator.onLine) {
@@ -147,7 +143,6 @@ export function pinNote(id: string) {
 			note: updatedNote,
 			timestamp: Date.now()
 			}).then(() => {
-				// Persist local pin state for offline reloads
 				saveNotesToDB(get(notes)).catch(console.error);
 			}).catch(error => {
 			console.error('Failed to save pending pin operation:', error);

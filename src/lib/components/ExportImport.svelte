@@ -14,9 +14,6 @@
 	let isImporting = $state(false);
 	let fileInput: HTMLInputElement;
 
-	/**
-	 * Export all notes as JSON file
-	 */
 	async function handleExport() {
 		isExporting = true;
 		try {
@@ -55,9 +52,6 @@
 		}
 	}
 
-	/**
-	 * Import notes from JSON file
-	 */
 	function triggerImport() {
 		fileInput?.click();
 	}
@@ -73,7 +67,6 @@
 			const text = await file.text();
 			const data = JSON.parse(text);
 
-			// Validate import format
 			if (!data.notes || !Array.isArray(data.notes)) {
 				throw new Error('Invalid import file format');
 			}
@@ -82,7 +75,6 @@
 			let skipped = 0;
 
 			for (const noteData of data.notes) {
-				// Validate required fields
 				if (!noteData.title || !noteData.content) {
 					skipped++;
 					continue;
@@ -101,7 +93,6 @@
 				}
 			}
 
-			// Reload notes to reflect imports
 			await loadNotes();
 
 			if (skipped > 0) {
@@ -114,7 +105,6 @@
 			onError?.('Failed to import notes. Make sure the file is valid JSON.');
 		} finally {
 			isImporting = false;
-			// Reset file input
 			if (fileInput) fileInput.value = '';
 		}
 	}

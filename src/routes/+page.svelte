@@ -24,13 +24,8 @@ import NoteCount from '$lib/components/NoteCount.svelte';
 	let deletingNote: Note | null = $state(null);
 	let toastMessage = $state<{ message: string; type: 'success' | 'error' | 'info'; onUndo?: () => void } | null>(null);
 
-// Track pending soft deletes (id -> timeout) so we can undo before permanent delete
 const pendingDeletes = new Map<string, ReturnType<typeof setTimeout>>();
 
-
-
-
-	// Memoized getDisplayNotes to avoid infinite loop
 type DisplayDeps = {
 	notes: Note[];
 	debouncedSearch: string;
@@ -76,7 +71,6 @@ let lastResult: Note[] = [];
 		return getTotalPages(filtered.length);
 	}
 
-	// Handlers
 	function handleCreateClick() {
 		editingNote = null;
 		showCreateModal = true;
@@ -98,7 +92,6 @@ async function handleCreate(data: Omit<Note, 'id' | 'createdAt'>) {
 			console.error('Failed to create note:', error);
 			showToast('Failed to create note', 'error');
 		} finally {
-			// Always close modal and reset editing state after submission attempt
 			isSubmitting.set(false);
 			showCreateModal = false;
 			editingNote = null;
@@ -106,17 +99,14 @@ async function handleCreate(data: Omit<Note, 'id' | 'createdAt'>) {
 	}
 
 function scheduleDelete(note: Note) {
-	// Optimistically remove from UI
 	notes.update((n) => n.filter((item) => item.id !== note.id));
 
-	// Start timer to permanently delete after 10s
 	const timeoutId = setTimeout(async () => {
 		pendingDeletes.delete(note.id);
 		try {
 			await deleteNote(note.id);
 		} catch (error) {
 			console.error('Failed to delete note:', error);
-			// Restore on failure
 			notes.update((n) => [note, ...n.filter((item) => item.id !== note.id)]);
 			showToast('Delete failed — note restored', 'error');
 		}
@@ -124,7 +114,6 @@ function scheduleDelete(note: Note) {
 
 	pendingDeletes.set(note.id, timeoutId);
 
-	// Show toast with Undo
 	showToast('Note deleted', 'info', () => handleUndoDelete(note));
 }
 
@@ -135,7 +124,6 @@ function handleUndoDelete(note: Note) {
 		pendingDeletes.delete(note.id);
 	}
 
-	// Restore note to the top (avoid duplicates)
 	notes.update((n) => {
 		const without = n.filter((item) => item.id !== note.id);
 		return [note, ...without];

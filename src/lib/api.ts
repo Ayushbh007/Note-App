@@ -1,9 +1,5 @@
 import type { Note, NotesResponse } from './types';
 
-/**
- * MockAPI base URL
- * Set VITE_MOCKAPI_PROJECT_ID in .env
- */
 const getBaseUrl = (): string => {
 	const projectId =
 		import.meta.env.VITE_MOCKAPI_PROJECT_ID || '6950f91f70e1605a1088f854';
@@ -18,9 +14,6 @@ export class ApiError extends Error {
 	}
 }
 
-/**
- * Handle fetch responses
- */
 async function handleResponse<T>(response: Response): Promise<T> {
 	if (!response.ok) {
 		const text = await response.text();
@@ -39,7 +32,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 async function fetchWithTimeout(
 	url: string,
 	options: RequestInit = {},
-	timeout = 10000 // 10 second timeout
+	timeout = 10000
 ): Promise<Response> {
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -61,9 +54,6 @@ async function fetchWithTimeout(
 }
 
 export const api = {
-	/**
-	 * Get paginated notes
-	 */
 	async getNotes(
 		page = 1,
 		limit = 20,
@@ -78,7 +68,6 @@ export const api = {
 		url.searchParams.set('sortBy', sortBy);
 		url.searchParams.set('order', order);
 
-		// MockAPI filtering works by field name
 		if (search) {
 			url.searchParams.set('title', search);
 		}
@@ -88,14 +77,10 @@ export const api = {
 
 		return {
 			data,
-			// MockAPI does not return total count → estimate
 			total: data.length === limit ? page * limit + 1 : page * limit
 		};
 	},
 
-	/**
-	 * Get single note
-	 */
 	async getNote(id: string): Promise<Note> {
 		const response = await fetchWithTimeout(
 			`${getBaseUrl()}/notes/${id}`
@@ -104,12 +89,6 @@ export const api = {
 		return { ...note, id: String(note.id) };
 	},
 
-	/**
-	 * Create note
-	 * IMPORTANT:
-	 * - Do NOT send id (MockAPI generates it)
-	 * - DO send createdAt (MockAPI otherwise generates placeholder text)
-	 */
 	async createNote(
 		note: Omit<Note, 'id' | 'createdAt'>
 	): Promise<Note> {
@@ -135,9 +114,6 @@ export const api = {
 		return handleResponse<Note>(response);
 	},
 
-	/**
-	 * Update note
-	 */
 	async updateNote(
 		id: string,
 		note: Partial<Omit<Note, 'id'>>
@@ -161,9 +137,6 @@ export const api = {
 		return handleResponse<Note>(response);
 	},
 
-	/**
-	 * Delete note
-	 */
 	async deleteNote(id: string): Promise<void> {
 		const response = await fetchWithTimeout(
 			`${getBaseUrl()}/notes/${id}`,

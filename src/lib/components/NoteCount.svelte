@@ -8,7 +8,6 @@
 
 	let { displayedCount }: Props = $props();
 
-	// Calculate counts using $derived
 	let total = $derived($notes.length);
 	
 	let filteredCount = $derived(

@@ -18,15 +18,9 @@
 
 	let errors = $state<{ title?: string; content?: string }>({});
 
-	// 🔴 CRITICAL: guard against reactivity loops
 	let lastNoteId: string | undefined;
 
-	/**
-	 * Sync props → local state
-	 * ONLY when the note identity actually changes
-	 */
 	$effect(() => {
-		// Create mode (no note)
 		if (!note) {
 			lastNoteId = undefined;
 			title = '';
@@ -35,7 +29,6 @@
 			return;
 		}
 
-		// Edit mode — only sync once per note
 		if (note.id === lastNoteId) return;
 
 		lastNoteId = note.id;
