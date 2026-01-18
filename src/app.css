@@ -3,11 +3,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-	color-scheme: light;
+  color-scheme: light;
 }
 
 .dark {
-	color-scheme: dark;
+  color-scheme: dark;
 }
 
 /* Add pointer cursor to all interactive elements */
@@ -16,6 +16,5 @@ button,
 input[type="submit"],
 input[type="button"],
 a {
-	cursor: pointer;
+  cursor: pointer;
 }
-
